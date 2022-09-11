@@ -2,14 +2,24 @@
 #define _DEBUG
 #endif
 
-#include <Firebase_ESP_Client.h>
-#include <addons/TokenHelper.h>
-#include <addons/RTDBHelper.h>
-
+#include <WiFi.h>
 //#include <HTTPClient.h>
 #include "FireTimer.h"
 #include "timer.h"
 Timer timer;
+
+#include <Firebase_ESP_Client.h>
+#include <addons/TokenHelper.h>
+#include <addons/RTDBHelper.h>
+
+#define API_KEY "AIzaSyCZWYrKd51Sa34_qqYhR0HBKXXK2MKlPO4"
+#define DATABASE_URL "https://smartclassroom-5821a-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
+#define USER_EMAIL "cobafirebase@gmail.com"
+#define USER_PASSWORD "cobafirebase"
+
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
 
 uint16_t t_second_forward = 5;
 uint16_t t_second_backward = 5;
@@ -29,19 +39,6 @@ TaskHandle_t SerialTask;
 #define SSID_WIFI "KASTARA GROUP INDONESIA"
 #define PASS_WIFI "KASTARA@2022"
 #define DOMAIN "mydomain"
-#define API_KEY " AIzaSyCZWYrKd51Sa34_qqYhR0HBKXXK2MKlPO4 "
-#define DATABASE_URL "https://smartclassroom-5821a-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
-
-#define USER_EMAIL "test@gmail.com"
-#define USER_PASSWORD "test123"
-
-//FirebaseData fbdo;
-//FirebaseAuth authentication;
-//FirebaseConfig configuration;
-
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
 
 uint8_t statusWifi = 0;
 
@@ -61,12 +58,11 @@ float voltage[3] = {0.0, 0.0, 0.0};
 float current[3] = {0.0, 0.0, 0.0};
 float power[3] = {0.0, 0.0, 0.0};
 float energy[3] = {0.0, 0.0, 0.0};
-bool stateRelay[3] = {0, 0, 0};
+bool stateRelay[4] = {0, 0, 0, 0};
 bool motorState[3] = {0, 0, 0};
 
 uint8_t FLAG = 0;
 uint8_t lcd_flg = 0;
-uint32_t fbstmr;
 
 int outVal = 0;
 
@@ -101,25 +97,12 @@ byte _PZEMMode = PZEMMenu;
 
 void setup()
 {
-  WIFI_INIT();
-
-  config.api_key = API_KEY;
-  /* Assign the user sign in credentials */
-  /* Assign the RTDB URL (required) */
-  config.database_url = DATABASE_URL;
-  if (Firebase.signUp(&config, &auth, "", "")) Serial.println("ok firebase kenek COKKKKKKKKKKKKKK");
-  else Serial.println("GAKKK KENEKKK");
-  /* Assign the callback function for the long running token generation task */
-  config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
-  Firebase.begin(&config, &auth);
-  Firebase.reconnectWiFi(true);
-  Firebase.setDoubleDigits(5);
-
   Serial.begin(115200);
   Serial2.begin(9600, SERIAL_8N1, RXp2, TXp2);
+  WIFI_INIT();
+  FirebaseInit();
   RelayInit();
   RTOS_Init();
-
   START_I2C_BUS();
   FireTimer_Init();
   timerInit();
@@ -138,7 +121,6 @@ void loop()
     LCD_mainMenu();
     bacaKeypad();
   }
-
   delay(30);
 }
 void SerialTask_callback( void * pvParameters ) {
@@ -149,11 +131,8 @@ void SerialTask_callback( void * pvParameters ) {
   for (;;) {
     if (dariNANOTimer.fire()) dariNANO();
     if (keNANOTimer.fire()) keNANO();
+    if (Firebase.ready() and msTimer.fire()) FirebaseHandler();
 
-    if (Firebase.ready() and (millis() - fbstmr >= 3000)) {
-      fbstmr = millis();
-      Firebase.RTDB.setString(&fbdo, "/pzemA/voltage", String(voltage[0]) ? Serial.println("ok") : Serial.println(fbdo.errorReason().c_str()));
-    }
     vTaskDelay( 20 / portTICK_PERIOD_MS );
   }
 }
