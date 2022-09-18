@@ -18,10 +18,16 @@ void dariESP32() {
       String forward_state = parseString(_read, "#", 1);
       String backward_state = parseString(_read, "#", 2);
       String dimmer_out = parseString(_read, "#", 4);
+      String relay1_out = parseString(_read, "#", 6);
+      String relay2_out = parseString(_read, "#", 7);
+      String relay3_out = parseString(_read, "#", 8);
 
       motorState[0] = forward_state.toInt();
       motorState[1] = backward_state.toInt();
       outVal = dimmer_out.toInt();
+      relayState[0] = relay1_out.toInt();
+      relayState[1] = relay2_out.toInt();
+      relayState[2] = relay3_out.toInt();
 
       //      Serial.println();
       //      Serial.println("||" + String(motorState[0]) + "||" + String(motorState[1]) + "||" + String(outVal) + "||");

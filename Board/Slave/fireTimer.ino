@@ -1,4 +1,4 @@
 void FireTimer_Init() {
-  keESP32Timer.begin(1000);
-  dariESP32Timer.begin(1000);
+  keESP32Timer.begin(3000);
+  dariESP32Timer.begin(3000);
 }
