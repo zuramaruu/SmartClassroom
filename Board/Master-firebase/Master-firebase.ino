@@ -1,5 +1,5 @@
 #ifndef _DEBUG
-#define _DEBUG
+#define _DEBUG_RTC
 #endif
 
 #include <WiFi.h>
@@ -58,7 +58,7 @@ float voltage[3] = {0.0, 0.0, 0.0};
 float current[3] = {0.0, 0.0, 0.0};
 float power[3] = {0.0, 0.0, 0.0};
 float energy[3] = {0.0, 0.0, 0.0};
-bool stateRelay[4] = {0, 0, 0, 0};
+int stateRelay[4] = {0, 0, 0, 0};
 bool motorState[3] = {0, 0, 0};
 
 uint8_t FLAG = 0;
@@ -69,7 +69,7 @@ int outVal = 0;
 char customKey;
 
 int indexes = 0;
-String allString[2];
+String allString[3];
 
 enum KeyMode {MenuMode,
               MonitoringMode,
@@ -97,11 +97,11 @@ byte _PZEMMode = PZEMMenu;
 
 void setup()
 {
+  //  RelayInit();
   Serial.begin(115200);
   Serial2.begin(9600, SERIAL_8N1, RXp2, TXp2);
   WIFI_INIT();
   FirebaseInit();
-  RelayInit();
   RTOS_Init();
   START_I2C_BUS();
   FireTimer_Init();
@@ -113,14 +113,18 @@ void loop()
   //  koneksiWifiChecker();
   timer.update();
   bacaRTC();
+  bacaBME();
 
   if (statusWifi == 1)
   {
 
   } else {
-    LCD_mainMenu();
-    bacaKeypad();
+
   }
+
+  LCD_mainMenu();
+  bacaKeypad();
+
   delay(30);
 }
 void SerialTask_callback( void * pvParameters ) {
@@ -130,7 +134,7 @@ void SerialTask_callback( void * pvParameters ) {
 
   for (;;) {
     if (dariNANOTimer.fire()) dariNANO();
-    if (keNANOTimer.fire()) keNANO();
+    //    if (keNANOTimer.fire()) keNANO();
     if (Firebase.ready() and msTimer.fire()) FirebaseHandler();
 
     vTaskDelay( 20 / portTICK_PERIOD_MS );

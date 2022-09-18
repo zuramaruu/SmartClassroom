@@ -44,18 +44,20 @@ void dariNANO()
 }
 
 void keNANO() {
-  if (statusWifi == 1)
-  {
+  //  if (statusWifi == 1)
+  //  {
+  //
+  //  } else {
+  //  }
 
-  } else
-  {
-    allString[0] = "STMOTOR#" + String(motorState[0]) + "#" + String(motorState[1]) + "#";
-    allString[1] = "DIMMER#" + String(outVal) + "#";
-    String dataSend = allString[0] + allString[1];
-    Serial2.print(dataSend);
-    Serial.println("Data Terkirim");
+  allString[0] = "STMOTOR#" + String(motorState[0]) + "#" + String(motorState[1]) + "#";
+  allString[1] = "DIMMER#" + String(outVal) + "#";
+  allString[2] = "STATE#" + String(stateRelay[0]) + "#" + String(stateRelay[1]) + "#" + String(stateRelay[2]);
+  String dataSend = allString[0] + allString[1] + allString[2];
+  Serial2.print(dataSend);
+  //  Serial.println("Data Terkirim");
+  Serial.println(allString[2]);
 
-  }
 }
 
 

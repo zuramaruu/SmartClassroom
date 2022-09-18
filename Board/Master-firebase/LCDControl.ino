@@ -175,9 +175,9 @@ void LCD_mainMenu() {
       lcd.setCursor(0, 0);
       lcd.print(" SUHU & KELEMBAPAN");
       lcd.setCursor(0, 1);
-      lcd.print("Suhu = " + String(12) + "  *C        ");
+      lcd.print("Suhu = " + String(bme_val[0]) + "  *C    ");
       lcd.setCursor(0, 2);
-      lcd.print("Kelembaban = " + String(12) + "  %  ");
+      lcd.print("Kelembaban = " + String(bme_val[1]) + " %");
       lcd.setCursor(0, 3);
       lcd.print("                    ");
       break;
@@ -234,7 +234,7 @@ void LCD_mainMenu() {
           lcd.setCursor(0, 1);
           lcd.print("             <Up>   ");
           lcd.setCursor(0, 2);
-          lcd.print("Value =      " + String(outVal) + "  ");
+          lcd.print("Value =      " + String(outVal) + "   ");
           lcd.setCursor(0, 3);
           lcd.print("            <Down>  ");
           if (customKey == '2') outVal += 20;
